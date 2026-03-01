@@ -1,10 +1,7 @@
 "use client"
 
 import Timer from "./Timer";
-
-import RefreshIcon from "@mui/icons-material/Refresh";
-import KeyboardArrowUp from "@mui/icons-material/KeyboardArrowUp";
-import KeyboardArrowDown from "@mui/icons-material/KeyboardArrowDown";
+import { RotateCcw, ChevronUp, ChevronDown } from "lucide-react";
 
 interface TargetNavigationProps {
     score: number;
@@ -71,7 +68,7 @@ const TargetNavigation: React.FC<TargetNavigationProps> = ({
 	function toggleColorHandler(event: React.MouseEvent<HTMLButtonElement>) {
 		setTargetColor(event.currentTarget.value);
 	}
-    
+
     const baseBtnClass = 'px-2 border rounded-md border-solid border-amber-200 cursor-pointer hover:bg-amber-300 hover:text-cool-gray-90';
 
 	return (
@@ -83,7 +80,7 @@ const TargetNavigation: React.FC<TargetNavigationProps> = ({
 						type="button"
 						onClick={resetHandler}
 					>
-						<RefreshIcon />
+						<RotateCcw size={24} />
 					</button>
 				</li>
 				<li className="flex flex-col text-center gap-1">
@@ -104,11 +101,11 @@ const TargetNavigation: React.FC<TargetNavigationProps> = ({
 				<li>
 					<div className='flex flex-col items-center justify-center px-2'>
 						<button type="button" onClick={increaseTimeHandler} className={`flex items-center justify-center ${baseBtnClass}`}>
-							<KeyboardArrowUp />
+							<ChevronUp size={20} />
 						</button>
 						<Timer time={timer} />
 						<button type="button" onClick={decreaseTimeHandler} className={`flex items-center justify-center ${baseBtnClass}`}>
-							<KeyboardArrowDown />
+							<ChevronDown size={20} />
 						</button>
 					</div>
 				</li>

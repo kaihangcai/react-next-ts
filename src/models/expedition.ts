@@ -1,4 +1,4 @@
-import { Dungeon, DungeonLength } from './darkest';
+import { Dungeon, DungeonDifficulty, DungeonLength, GameDifficulty, HeroClasses } from './darkest';
 
 export interface Expedition {
 
@@ -70,4 +70,43 @@ export interface SingleDungeonRec {
     cost: number;
     heroes: number[];
     tips: string[];
+}
+
+export enum ExpeditionOutcome {
+    SUCCESS = 'success',
+    FAILURE = 'failure',
+    RETREAT = 'retreat',
+}
+
+export interface ExpeditionLogEntry {
+    id: string;
+    userId: string;
+    dungeon: Dungeon;
+    duration: DungeonLength;
+    difficulty: DungeonDifficulty;
+    gameDifficulty?: GameDifficulty;
+    heroes: HeroClasses[];
+    provisions: Provisions;
+    outcome: ExpeditionOutcome;
+    casualties: HeroClasses[];
+    loot: Loot;
+    stressNotes: string;
+    notes: string;
+    rating: number;
+    createdAt: string;
+}
+
+export interface CreateExpeditionLogDto {
+    dungeon: Dungeon;
+    duration: DungeonLength;
+    difficulty: DungeonDifficulty;
+    gameDifficulty?: GameDifficulty;
+    heroes: HeroClasses[];
+    provisions: Provisions;
+    outcome: ExpeditionOutcome;
+    casualties: HeroClasses[];
+    loot: Loot;
+    stressNotes: string;
+    notes: string;
+    rating: number;
 }

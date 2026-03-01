@@ -1,5 +1,4 @@
 import { Provisions } from "@/models/expedition";
-import { Grid } from "@mui/material";
 import ItemDisplay from "./ItemDisplay";
 import { useEffect, useState } from "react";
 import { PROVISION_COSTS, PROVISION_MAX_STACK } from "@/utils/Constants/shop";
@@ -32,13 +31,10 @@ const Bag: React.FC<BagProps> = ({items, onItemClick, isShop=false}) => {
 
     const handleItemClick = (index: number) => {
         const item: BagItem = updatedBag[index];
-        // Object.entries(item).forEach(([key, value]) => {
-        //     console.log(`${key}: ${value}`);
-        // })
-
         onItemClick(item.name);
     }
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         setUpdatedBag([]);
         if(items != undefined) {
@@ -62,20 +58,22 @@ const Bag: React.FC<BagProps> = ({items, onItemClick, isShop=false}) => {
         }
     }, [items])
 
-    return <Grid sx={{display: "flex", flexDirection: 'column', justifyContent: "center", alignItems: 'center'}}>
-        <Grid container spacing={1} columns={16} sx={{display: "flex", width: '600px', height: '300px'} }>
-            {updatedBag.map((item: BagItem, index: number) => {
-                return <ItemDisplay 
-                            key={item.name + index} 
-                            item={item.name} 
-                            value={PROVISION_COSTS[item.name]}
-                            showValue={isShop}
-                            amount={item.count} 
-                            onClick={handleItemClick.bind(this, index)}
-                        />
-            })}
-        </Grid>
-    </Grid>
+    return (
+        <div className="flex flex-col justify-center items-center">
+            <div className="flex flex-wrap gap-1" style={{width: '600px', height: '300px'}}>
+                {updatedBag.map((item: BagItem, index: number) => {
+                    return <ItemDisplay
+                                key={item.name + index}
+                                item={item.name}
+                                value={PROVISION_COSTS[item.name]}
+                                showValue={isShop}
+                                amount={item.count}
+                                onClick={handleItemClick.bind(this, index)}
+                            />
+                })}
+            </div>
+        </div>
+    );
 }
 
 export default Bag;

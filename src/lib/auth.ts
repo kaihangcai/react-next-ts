@@ -1,92 +1,56 @@
-import type { NextAuthOptions } from "next-auth";
+import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { compare } from "bcryptjs";
+import prisma from "@/lib/prisma";
 
-// To configure the NextAuth API handler... or smth like that 
-export const authOptions: NextAuthOptions = {
+export const { handlers, auth, signIn, signOut } = NextAuth({
+  trustHost: true,
   session: {
     strategy: "jwt",
-    maxAge: 60 * 60,  // 1 hour -> refers to the maximum IDLE time (i.e. time spent NOT ON the webpage) allowed before the token is expired
+    maxAge: 60 * 60, // 1 hour
   },
   providers: [
     CredentialsProvider({
       id: "login",
       credentials: {
-        username: { label: "Username", type: "text", placeholder: "Enter username here..." },
-        password: { label: "Password", type: "password", placeholder: "Enter password here..." },
+        username: { label: "Username", type: "text" },
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        const {username, password} = credentials as { username: string; password: string }
-        const response = await fetch(`${process.env.BACKEND_USER_URL}/auth/login`, {
-            method: 'POST',
-            body: JSON.stringify({
-                username,
-                password,
-            }),
-            headers: { "Content-Type" : 'application/json' }
-        })
+        const username = credentials?.username as string;
+        const password = credentials?.password as string;
 
-        const data = await response.json();
-
-        if(response.status === 422) {   // backend will return validation errors back as a res with status 422
-          console.log(data.message);
-          throw new Error(JSON.stringify(data.errors));
+        const user = await prisma.user.findUnique({ where: { username } });
+        if (!user) {
+          throw new Error(JSON.stringify({ credentials: "Invalid username or password." }));
         }
 
-        if(response.ok && data) return data;  // login is authenticated by backend, will return user-specific identification info
+        const pwValid = await compare(password, user.password);
+        if (!pwValid) {
+          throw new Error(JSON.stringify({ credentials: "Invalid username or password." }));
+        }
 
-        return null;  // throws 'CredentialsSignIn' as an error automatically, which will affect the return value of signIn()
+        return { id: user.id, name: user.alias };
       },
     }),
   ],
   callbacks: {
-    // jwt callback is triggered when token is created (returns the token) - seems to also include everytime the session is accessed :/
-    // will only have 'user', 'account', 'profile' and 'isNewUser' as input args on the FIRST time this is called on a NEW session
-    // 'user' is the return value of authorize(), but this is for CredentialProvider only (I think?)
     jwt: async ({ token, user }) => {
-      // you can persist data (from those "limited edition" parameters) by 'attaching' it to token
-      // !! Note that 'token' here is NOT the full jwt token, it is just the "payload" part of the jwt token (middle section) !!
-      console.log("=== JWT CALLBACK ===");  // just to check when jwt() is triggered
-      
-      // token will initially contain sub, iat, exp and jti (also known as "claims")
-      /*
-        sub: "subject" - somehow takes on the value of user.id automatically O.o (string)
-        iat: "initialised at" (I think) - basically when this jwt() callback was called (number)
-        exp: "expires at" - basically iat + maxAge (set in the session: {} option) (number)
-        jti: "json token identifier" - unique id for this json web token (string)
-      */
-
-      if(user && user.id) { // user exists = first callback --> merge user (return val from authorize()) into token
-        return { ...token, ...user, isExpired: false };
+      if (user) {
+        token.id = user.id;
+        token.alias = user.name;
       }
-
-      // check expiry: backend to be modified to return tokenExpiry as well
-      const now = new Date();
-      if(now > new Date(token.tokenExpiry as number * 1000)) {
-        console.log("Access token expired!");
-        token.isExpired = true;
-      }
-
       return token;
     },
-    // session callback is called whenever a session for the user is checked
-    // note that the 'token' in the input arg IS the return value of jwt() - jwt() is ALWAYS called BEFORE session()
-    // hence, because session() is triggered when calling useSession(), it will call jwt() as well because that is what it needs
     session: async ({ session, token }) => {
-      session.user = token as any;
+      if (token) {
+        session.user.id = token.id as string;
+        session.user.alias = token.alias as string;
+      }
       return session;
-    }
+    },
   },
   pages: {
-    signIn: '/auth/?mode=login',
+    signIn: "/auth/?mode=login",
   },
-  events: {
-    // triggers after successful sign in - just for debug logs I think
-    signIn() {
-        console.log('=== signIn() event! ===');
-    },
-    // triggers after successful sign out
-    signOut() {
-      console.log('=== signOut() event! ===');
-    },
-  }
-};
+});

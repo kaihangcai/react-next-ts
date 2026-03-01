@@ -9,11 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@emotion/react": "^11.11.3",
-    "@emotion/styled": "^11.11.0",
-    "@mui/icons-material": "^5.14.0",
-    "@mui/material": "^5.15.2",
-    "@prisma/client": "^4.16.2",
+    "@prisma/client": "^6.0.0",
     "@types/node": "20.4.1",
     "@types/react": "18.2.14",
     "@types/react-dom": "18.2.6",
@@ -21,20 +17,20 @@
     "axios": "^1.4.0",
     "bcryptjs": "^2.4.3",
     "eslint": "8.44.0",
-    "eslint-config-next": "13.4.9",
+    "eslint-config-next": "^15",
     "formik": "^2.4.2",
+    "lucide-react": "^0.400.0",
     "next": "^15.2.4",
-    "next-auth": "^4.22.1",
+    "next-auth": "5.0.0-beta.30",
     "postcss": "^8.5.3",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-next-ts": "file:",
     "tailwindcss": "3.3.2",
     "typescript": "5.1.6"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",
-    "prisma": "^4.16.2",
+    "prisma": "^6.0.0",
     "ts-node": "^10.9.1"
   },
   "prisma": {

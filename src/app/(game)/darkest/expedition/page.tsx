@@ -3,15 +3,19 @@
 import DungeonRecommendations from "@/components/Darkest/DungeonRecommendations";
 import DungeonSelector from "@/components/Darkest/DungeonSelector";
 import DurationSelector from "@/components/Darkest/DurationSelector";
+import ExpeditionLogForm from "@/components/Darkest/ExpeditionLogForm";
+import ExpeditionHistoryList from "@/components/Darkest/ExpeditionHistoryList";
 import useHttp from "@/hooks/use-http";
 import { Dungeon, DungeonLength } from "@/models/darkest";
 import { DungeonRecommendation, Provisions, SingleDungeonRec } from "@/models/expedition";
 import { mapDungeonToIndex } from "@/utils/Constants/constants";
 import { calculateProvisionCost } from "@/utils/costCalculator";
-import { Grid } from "@mui/material";
 import { useEffect, useState } from "react";
 
+type TabId = "recommendations" | "new-entry" | "history";
+
 const DarkestExpeditionPage = () => {
+    const [activeTab, setActiveTab] = useState<TabId>("recommendations");
     const [selectedDungeon, setSelectedDungeon] = useState<Dungeon>(Dungeon.RUINS);
     const [selectedDuration, setSelectedDuration] = useState<DungeonLength>(DungeonLength.SHORT);
 
@@ -32,7 +36,7 @@ const DarkestExpeditionPage = () => {
     useEffect(() => {
         // fetch recommendation data
         const fetchData = async() => {
-            const response = await fetch(`http://localhost:4002/darkest/expedition/recommendations/${mapDungeonToIndex(selectedDungeon)}`, {
+            const response = await fetch(`/api/darkest/expedition/recommendations/${mapDungeonToIndex(selectedDungeon)}`, {
                 method: 'GET',
             })
             const result = await response.json();
@@ -67,10 +71,10 @@ const DarkestExpeditionPage = () => {
                 [selectedDuration]: newCost
             }
         }
-        // send 'inventory' to backend to update the json file
+        // send 'inventory' to backend to update the database
         const postData = async() => {
             try {
-                const response = await fetch(`http://localhost:4002/darkest/expedition/recommendations/${mapDungeonToIndex(selectedDungeon)}`, {
+                const response = await fetch(`/api/darkest/expedition/recommendations/${mapDungeonToIndex(selectedDungeon)}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -93,15 +97,45 @@ const DarkestExpeditionPage = () => {
     const debugText = `DARKEST COMPANION (${selectedDungeon} : ${selectedDuration})`;
 
     return (
-        <Grid sx={{display: 'flex', flexDirection: 'column', padding: '8px'}}>
+        <div className="flex flex-col p-2">
             <h1 className="font-bold text-xl" style={{marginBottom: "8px"}}>{debugText}</h1>
-            {/* Selectors */}
-            <Grid sx={{display: 'flex', flexDirection: 'column', rowGap: '16px', justifyContent: 'center', alignItems: 'center', pt: '12px', pb: '24px'}}>
-                <DungeonSelector selected={selectedDungeon} handleClick={handleDungeonClick} />
-                <DurationSelector selected={selectedDuration} handleClick={handleDurationClick} />
-            </Grid>
-            {selectedDungeon && <DungeonRecommendations recommendations={recommendations} duration={selectedDuration} updateRec={updateRecommendation} />}
-        </Grid>
+
+            {/* Tab bar */}
+            <div className="flex border-b border-cool-gray-80 mb-4">
+                {(["recommendations", "new-entry", "history"] as TabId[]).map(tab => (
+                    <button
+                        key={tab}
+                        onClick={() => setActiveTab(tab)}
+                        className={`px-4 py-2 font-semibold transition-colors ${
+                            activeTab === tab
+                                ? "border-b-2 border-orange-30 text-orange-30"
+                                : "text-cool-gray-20 hover:text-white"
+                        }`}
+                    >
+                        {tab === "new-entry" ? "New Entry" : tab.charAt(0).toUpperCase() + tab.slice(1)}
+                    </button>
+                ))}
+            </div>
+
+            {/* Recommendations tab */}
+            {activeTab === "recommendations" && (
+                <>
+                    <div className="flex flex-col gap-4 justify-center items-center pt-3 pb-6">
+                        <DungeonSelector selected={selectedDungeon} handleClick={handleDungeonClick} />
+                        <DurationSelector selected={selectedDuration} handleClick={handleDurationClick} />
+                    </div>
+                    {selectedDungeon && <DungeonRecommendations recommendations={recommendations} duration={selectedDuration} updateRec={updateRecommendation} />}
+                </>
+            )}
+
+            {/* New Entry tab */}
+            {activeTab === "new-entry" && (
+                <ExpeditionLogForm onSuccess={() => setActiveTab("history")} />
+            )}
+
+            {/* History tab */}
+            {activeTab === "history" && <ExpeditionHistoryList />}
+        </div>
     )
 }
 

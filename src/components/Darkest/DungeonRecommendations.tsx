@@ -1,6 +1,5 @@
 import { DungeonLength } from "@/models/darkest";
 import { Provisions, SingleDungeonRec } from "@/models/expedition";
-import { Grid } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import Bag from "./Bag";
 import { PROVISION_COSTS, SHOP_PROVISIONS } from "@/utils/Constants/shop";
@@ -16,7 +15,7 @@ interface DungeonRecommendationsProps {
 // Need a 'normal' view and a 'edit' view
 const DungeonRecommendations: React.FC<DungeonRecommendationsProps> = ({
     recommendations, duration, updateRec
-}) => { 
+}) => {
     const [showShop, setShowShop] = useState<boolean>(false);
 
     const [shopProvisions, setShopProvisions] = useState<Provisions>();
@@ -25,6 +24,7 @@ const DungeonRecommendations: React.FC<DungeonRecommendationsProps> = ({
     const [inventoryCost, setInventoryCost] = useState<number>();
 
     // [WIP]: to update the provisions displayed based on the selected dungeon type + duration
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         setInventory(recommendations?.provisions);
         updateShopProvisions(recommendations?.provisions);
@@ -73,7 +73,7 @@ const DungeonRecommendations: React.FC<DungeonRecommendationsProps> = ({
                 ...prevState,
                 [item]: prevState[item] + 1
             }
-        }) 
+        })
     }
 
     const updateShopProvisions = (prov: Provisions | undefined) => {
@@ -117,22 +117,26 @@ const DungeonRecommendations: React.FC<DungeonRecommendationsProps> = ({
         updateRec(inventory, inventoryCost);
     }
 
-    return <Grid sx={{display: "flex", justifyContent: "center", alignItems: 'center', flexDirection: 'column', rowGap: '24px'}}>
-        {showShop && <Grid sx={{display: "flex", flexDirection: "column", rowGap: "12px"}}>
-            <label style={{fontSize: '24px', lineHeight: '18px'}}>SHOP</label>
-            <Bag items={shopProvisions} onItemClick={onShopItemClick} isShop={true}/>
-        </Grid>} 
-        <Grid sx={{display: "flex", flexDirection: "column", rowGap: "12px"}}>
-            <Grid sx={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
-                <label style={{fontSize: '24px', lineHeight: '18px'}}>INVENTORY <span style={{color: 'gold'}}>({inventoryCost})</span></label>
-                <Grid sx={{display: 'flex', columnGap: '12px'}}>
-                    <Button label={showShop ? "Cancel" : "Edit"} onClick={toggleView} />
-                    {showShop && <Button label={"Save"} onClick={saveInventory}/>}
-                </Grid>
-            </Grid>
-            <Bag items={inventory} onItemClick={onInventoryItemClick}/>
-        </Grid>
-    </Grid>
+    return (
+        <div className="flex justify-center items-center flex-col gap-6">
+            {showShop && (
+                <div className="flex flex-col gap-3">
+                    <label style={{fontSize: '24px', lineHeight: '18px'}}>SHOP</label>
+                    <Bag items={shopProvisions} onItemClick={onShopItemClick} isShop={true}/>
+                </div>
+            )}
+            <div className="flex flex-col gap-3">
+                <div className="flex justify-between items-center">
+                    <label style={{fontSize: '24px', lineHeight: '18px'}}>INVENTORY <span style={{color: 'gold'}}>({inventoryCost})</span></label>
+                    <div className="flex gap-3">
+                        <Button label={showShop ? "Cancel" : "Edit"} onClick={toggleView} />
+                        {showShop && <Button label={"Save"} onClick={saveInventory}/>}
+                    </div>
+                </div>
+                <Bag items={inventory} onItemClick={onInventoryItemClick}/>
+            </div>
+        </div>
+    );
 }
 
 export default DungeonRecommendations;

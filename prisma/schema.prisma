@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String          @id @default(uuid())
+  username       String          @unique
+  password       String
+  alias          String
+  scores         GameRecord?
+  expeditionLogs ExpeditionLog[]
+}
+
+model GameRecord {
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+  s_15   Int    @default(0)
+  s_30   Int    @default(0)
+  s_45   Int    @default(0)
+  s_60   Int    @default(0)
+  m_15   Int    @default(0)
+  m_30   Int    @default(0)
+  m_45   Int    @default(0)
+  m_60   Int    @default(0)
+  l_15   Int    @default(0)
+  l_30   Int    @default(0)
+  l_45   Int    @default(0)
+  l_60   Int    @default(0)
+}
+
+model DungeonRecommendation {
+  dungeonId Int    @id
+  data      String // JSON blob (full DungeonRecommendation object)
+}
+
+model ExpeditionLog {
+  id             String   @id @default(uuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id])
+
+  dungeon        String
+  duration       String
+  difficulty     Int
+  gameDifficulty Int?
+
+  heroes         String
+  provisions     String
+  outcome        String
+  casualties     String
+  loot           String
+  stressNotes    String
+  notes          String
+  rating         Int
+
+  createdAt      DateTime @default(now())
+
+  @@index([userId])
+}

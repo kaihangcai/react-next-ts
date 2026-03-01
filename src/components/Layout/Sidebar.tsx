@@ -3,7 +3,7 @@
 import React, { HTMLProps, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronRight } from "@mui/icons-material";
+import { ChevronRight } from "lucide-react";
 
 interface SideBarLink {
   name: string;

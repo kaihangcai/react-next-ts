@@ -78,9 +78,7 @@ const ScoreProvider: React.FC<ScoreProviderProps> = ({ children }) => {
     // Goal: fetch score records when user switches between logged in & logged out (or expired)
     useEffect(() => {
         const fetchRecords = async () => {
-            const response = await fetch(`http://localhost:4001/game`, {
-                headers: {'Authorization' : `Bearer ${user?.token || 'INVALID'}`}
-            });
+            const response = await fetch(`/api/game`);
     
             if(!response.ok) {
                 console.log("Error with fetching score records!");

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useReducer, useCallback } from "react";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import Target from "./Target";
 import TargetNavigation from "./TargetNavigation";
 import useTimer from "../../hooks/use-timer";
@@ -275,31 +275,24 @@ const TargetWindow: React.FC<TargetWindowProps> = ({ state, updateState }) => {
 			if (statsState.score > topScore) {
 				setPlayerScore(gameState, statsState.score);
 				// update backend here
-				if(user) {
-					if(!user.isExpired) {
-						sendRequest(
-							{
-								url: `${process.env.BACKEND_GAME_URL}/game`,
-								method: "POST",
-								data: {
-									score: statsState.score,
-									state: gameState,
-									playerId: user?.id || '',
-								},
-								token: user?.token || 'INVALID',
+				if(status === "authenticated") {
+					sendRequest(
+						{
+							url: `/api/game`,
+							method: "POST",
+							data: {
+								score: statsState.score,
+								state: gameState,
 							},
-							(data) => {
-								console.log(data.message);
-							}
-						);
-					} else {
-						console.log("User login expired! Signing out...");
-						signOut();
-					}
+						},
+						(data) => {
+							console.log(data.message);
+						}
+					);
 				} else console.log('Not logged in!')
 			}
 		}
-	}, [timer, stopGameHandler, resetTimer, statsState.score, topScore, setPlayerScore, gameState, sendRequest, user?.token, user?.id, user?.isExpired, user]);
+	}, [timer, stopGameHandler, resetTimer, statsState.score, topScore, setPlayerScore, gameState, sendRequest, status]);
 
 	// From start -> game
 	function startGameHandler() {
