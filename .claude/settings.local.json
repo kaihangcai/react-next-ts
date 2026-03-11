@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(GIT_DIR=\"C:/Users/kaiha/OneDrive/Desktop/Learning/Coding/DarkestDungeon/react-next-backend/.git\" git log --oneline -20)",
+      "Skill(dev-docs)",
+      "Skill(update-dev-docs)",
+      "Bash(ls:*)",
+      "Bash(find C:\\\\Users\\\\kaiha\\\\Documents\\\\Random\\\\DarkestDungeon\\\\react-next-ts\\\\src\\\\app\\\\\\\\\\(game\\):*)",
+      "Skill(plan-reviewer)"
+    ]
+  }
+}
