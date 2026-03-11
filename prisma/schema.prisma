@@ -8,12 +8,12 @@ datasource db {
 }
 
 model User {
-  id             String          @id @default(uuid())
-  username       String          @unique
-  password       String
-  alias          String
-  scores         GameRecord?
-  expeditionLogs ExpeditionLog[]
+  id        String     @id @default(uuid())
+  username  String     @unique
+  password  String
+  alias     String
+  scores    GameRecord?
+  gameSaves GameSave[]
 }
 
 model GameRecord {
@@ -39,10 +39,43 @@ model DungeonRecommendation {
   data      String // JSON blob (full DungeonRecommendation object)
 }
 
+model GameSave {
+  id             String          @id @default(uuid())
+  userId         String
+  user           User            @relation(fields: [userId], references: [id])
+  slot           Int
+  name           String
+  expeditionLogs ExpeditionLog[]
+  rosterHeroes   RosterHero[]
+  createdAt      DateTime        @default(now())
+
+  @@unique([userId, slot])
+  @@index([userId])
+}
+
+model RosterHero {
+  id             String   @id @default(uuid())
+  gameSaveId     String
+  gameSave       GameSave @relation(fields: [gameSaveId], references: [id])
+  heroClass      Int
+  customName     String
+  level          Int
+  positiveQuirks String   // JSON: string[]
+  negativeQuirks String   // JSON: string[]
+  diseases       String   // JSON: string[]
+  trinket1       String
+  trinket2       String
+  notes          String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([gameSaveId])
+}
+
 model ExpeditionLog {
   id             String   @id @default(uuid())
-  userId         String
-  user           User     @relation(fields: [userId], references: [id])
+  gameSaveId     String
+  gameSave       GameSave @relation(fields: [gameSaveId], references: [id])
 
   dungeon        String
   duration       String
@@ -60,5 +93,5 @@ model ExpeditionLog {
 
   createdAt      DateTime @default(now())
 
-  @@index([userId])
+  @@index([gameSaveId])
 }

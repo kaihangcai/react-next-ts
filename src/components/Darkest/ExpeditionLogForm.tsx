@@ -22,6 +22,7 @@ import StarRating from "./StarRating";
 import Button from "@/components/UI/Button";
 
 interface ExpeditionLogFormProps {
+    gameSaveId: string;
     onSuccess: () => void;
 }
 
@@ -69,7 +70,7 @@ const SectionLabel = ({ text }: { text: string }) => (
     <h3 className="font-semibold text-white mb-2">{text}</h3>
 );
 
-const ExpeditionLogForm: React.FC<ExpeditionLogFormProps> = ({ onSuccess }) => {
+const ExpeditionLogForm: React.FC<ExpeditionLogFormProps> = ({ gameSaveId, onSuccess }) => {
     const [dungeon, setDungeon]               = useState<Dungeon>(Dungeon.RUINS);
     const [duration, setDuration]             = useState<DungeonLength>(DungeonLength.SHORT);
     const [difficulty, setDifficulty]         = useState<DungeonDifficulty>(DungeonDifficulty.APPRENTICE);
@@ -124,7 +125,7 @@ const ExpeditionLogForm: React.FC<ExpeditionLogFormProps> = ({ onSuccess }) => {
         setError(null);
         try {
             const body: CreateExpeditionLogDto = {
-                dungeon, duration, difficulty, gameDifficulty,
+                gameSaveId, dungeon, duration, difficulty, gameDifficulty,
                 heroes, provisions, outcome, casualties, loot,
                 stressNotes, notes, rating,
             };

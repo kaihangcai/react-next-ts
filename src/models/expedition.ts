@@ -78,9 +78,63 @@ export enum ExpeditionOutcome {
     RETREAT = 'retreat',
 }
 
-export interface ExpeditionLogEntry {
+export interface GameSave {
     id: string;
     userId: string;
+    slot: 1 | 2 | 3;
+    name: string;
+    createdAt: string;
+}
+
+export interface CreateGameSaveDto {
+    slot: 1 | 2 | 3;
+    name: string;
+}
+
+export interface RosterHero {
+    id: string;
+    gameSaveId: string;
+    heroClass: HeroClasses;
+    customName: string;
+    level: number;
+    positiveQuirks: string[];
+    negativeQuirks: string[];
+    diseases: string[];
+    trinket1: string;
+    trinket2: string;
+    notes: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface CreateRosterHeroDto {
+    gameSaveId: string;
+    heroClass: HeroClasses;
+    customName?: string;
+    level: number;
+    positiveQuirks?: string[];
+    negativeQuirks?: string[];
+    diseases?: string[];
+    trinket1?: string;
+    trinket2?: string;
+    notes?: string;
+}
+
+export interface UpdateRosterHeroDto {
+    heroClass?: HeroClasses;
+    customName?: string;
+    level?: number;
+    positiveQuirks?: string[];
+    negativeQuirks?: string[];
+    diseases?: string[];
+    trinket1?: string;
+    trinket2?: string;
+    notes?: string;
+}
+
+export interface ExpeditionLogEntry {
+    id: string;
+    gameSaveId: string;
     dungeon: Dungeon;
     duration: DungeonLength;
     difficulty: DungeonDifficulty;
@@ -97,6 +151,7 @@ export interface ExpeditionLogEntry {
 }
 
 export interface CreateExpeditionLogDto {
+    gameSaveId: string;
     dungeon: Dungeon;
     duration: DungeonLength;
     difficulty: DungeonDifficulty;

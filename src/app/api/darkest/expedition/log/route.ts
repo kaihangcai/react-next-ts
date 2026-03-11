@@ -5,7 +5,7 @@ import { ExpeditionLogEntry } from "@/models/expedition";
 
 function parseLog(log: {
   id: string;
-  userId: string;
+  gameSaveId: string;
   dungeon: string;
   duration: string;
   difficulty: number;
@@ -31,14 +31,26 @@ function parseLog(log: {
   } as ExpeditionLogEntry;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
+  const { searchParams } = new URL(request.url);
+  const saveId = searchParams.get("saveId");
+
+  if (!saveId) {
+    return NextResponse.json({ message: "saveId is required" }, { status: 422 });
+  }
+
+  const save = await prisma.gameSave.findUnique({ where: { id: saveId } });
+  if (!save || save.userId !== session.user.id) {
+    return NextResponse.json({ message: "Not found" }, { status: 404 });
+  }
+
   const logs = await prisma.expeditionLog.findMany({
-    where: { userId: session.user.id },
+    where: { gameSaveId: saveId },
     orderBy: { createdAt: "desc" },
   });
 
@@ -62,6 +74,9 @@ export async function POST(request: Request) {
   const VALID_DIFFICULTIES = [1, 2, 3];
   const VALID_OUTCOMES = ["success", "failure", "retreat"];
 
+  if (!body.gameSaveId || typeof body.gameSaveId !== "string") {
+    errors.gameSaveId = "gameSaveId is required";
+  }
   if (!body.dungeon || !VALID_DUNGEONS.includes(body.dungeon)) {
     errors.dungeon = `Invalid dungeon: ${body.dungeon}`;
   }
@@ -92,9 +107,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: "Validation failed", errors }, { status: 422 });
   }
 
+  const save = await prisma.gameSave.findUnique({ where: { id: body.gameSaveId } });
+  if (!save || save.userId !== session.user.id) {
+    return NextResponse.json({ message: "Not found" }, { status: 404 });
+  }
+
   const log = await prisma.expeditionLog.create({
     data: {
-      userId: session.user.id,
+      gameSaveId: body.gameSaveId,
       dungeon: body.dungeon,
       duration: body.duration,
       difficulty: body.difficulty,
